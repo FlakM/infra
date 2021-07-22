@@ -1,0 +1,35 @@
+%YAML 1.2
+---
+name: toktme-script
+file_extensions: [script]
+scope: script.toktme
+
+contexts:
+
+  main:
+    - match: (:[a-zA-Z-_]+)\s*$
+      scope: entity.name.tag
+    - match: \b(user:)
+      scope: variable.parameter.c
+    - match: \b(bot:)
+      scope: constant.numeric
+    # Comments begin with a '//' and finish at the end of the line
+    - match: '//'
+      scope: punctuation.definition.comment.example-c
+      push: line_comment
+    - match: (%|\+|-|=|\[|\])
+      scope: entity.name
+
+
+  string:
+    - meta_scope: string.quoted.double.c
+    - match: \\.
+      scope: constant.character.escape.c
+    - match: "'"
+      pop: true
+
+  line_comment:
+    - meta_scope: comment.line.example-c
+    - match: $
+      pop: true        
+

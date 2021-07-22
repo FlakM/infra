@@ -1,0 +1,10 @@
+#!/bin/bash
+
+source ~/.secrets/.localrc_raves
+
+rave_vpn(){
+    sudo openvpn --config ~/.secrets/client-config.ovpn --ping 60 --ping-exit 120
+}
+
+
+PATH="$HOME/.local/bin:$PATH"

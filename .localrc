@@ -1,0 +1,97 @@
+#!/bin/bash
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+#
+# Usefull aliases etc
+#
+alias spotify4k="/snap/bin/spotify --force-device-scale-factor=2.0  2> /dev/null > /dev/null &"
+
+source ~/.secrets/.localrc
+
+
+reexport_aws(){
+    export AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID_MACIEK"
+    export AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY_MACIEK"
+}
+
+idea(){
+    dir=$(realpath $1)
+    intellij-idea-community $dir  2> /dev/null > /dev/null &
+}
+
+
+alias less=bat
+
+
+# taken from https://github.com/drduh/YubiKey-Guide#using-keys
+secret () {
+    created_name=~/"${1}".$(date +%s).enc
+    output="${2:-$created_name}"
+    gpg --encrypt --armor --output ${output} -r "maciej.jan.flak@gmail.com" "${1}" && echo "${1} -> ${output}"
+}
+
+reveal () {
+	created_name=$(echo "${1}" | rev | cut -c16- | rev)
+	if [[ -z "$var" ]]; then
+  		output="${2:-$created_name}"
+	fi
+        gpg --decrypt --output ${output} "${1}" && echo "${1} -> ${output}"
+}
+
+restart_gpg() {
+	pkill gpg-agent ; pkill ssh-agent ; pkill pinentry ; eval $(gpg-agent --daemon --enable-ssh-support)
+	gpg-connect-agent updatestartuptty /bye
+	gpg --card-status
+}
+
+
+backup_secrets() {
+    tar -czf ~/secrets.tar.gz -C ~ .secrets/
+    rm -f ~/secrets.tar.gz.enc
+    secret ~/secrets.tar.gz ~/secrets.tar.gz.enc
+    rm -f ~/secrets.tar.gz
+    config add ~/secrets.tar.gz.enc
+    echo "secret is stored in ~/secrets.tar.gz.enc and added to git repository"
+}
+
+import_secrets() {
+    reveal ~/secrets.tar.gz.enc ~/secrets.tar.gz
+    tar --verbose -xzf ~/secrets.tar.gz -C ~
+    rm -f ~/secrets.tar.gz
+}
+
+export GPG_TTY="$(tty)"
+export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+gpgconf --launch gpg-agent
+
+
+title (){
+    echo -ne "\033]30;$1\007"
+}
+
+CUSTOM_NVIM_PATH=/usr/local/bin/nvim.appimage
+
+
+reinstall_neovim() {
+    sudo update-alternatives --install /usr/bin/ex ex "${CUSTOM_NVIM_PATH}" 110
+    sudo update-alternatives --install /usr/bin/vi vi "${CUSTOM_NVIM_PATH}" 110
+    sudo update-alternatives --install /usr/bin/view view "${CUSTOM_NVIM_PATH}" 110
+    sudo update-alternatives --install /usr/bin/vim vim "${CUSTOM_NVIM_PATH}" 110
+    sudo update-alternatives --install /usr/bin/vimdiff vimdiff "${CUSTOM_NVIM_PATH}" 110
+}
+
+BAT_THEME=gruvbox-dark
+
+if type rg &> /dev/null; then
+  export FZF_DEFAULT_COMMAND='rg --files'
+  export FZF_DEFAULT_OPTS='-m --height 50% --border'
+fi
+
+
+source /home/flakm/programming/flakm/fzf-tab-completion/bash/fzf-bash-completion.sh
+bind -x '"\t": fzf_bash_completion'
+_fzf_bash_completion_loading_msg() { echo "${PS1@P}${READLINE_LINE}" | tail -n1; }
+
+source ~/.bloop_completions.sh
+
