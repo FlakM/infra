@@ -429,6 +429,9 @@ autocmd FileType json syntax match Comment +\/\/.\+$+
 " Help Vim recognize *.sbt and *.sc as Scala files
 au BufRead,BufNewFile *.sbt,*.sc set filetype=scala
 
+
+autocmd BufWritePre *.scala,*.rust :silent call CocAction('runCommand', 'editor.action.organizeImport')
+
 " Used to expand decorations in worksheets
 nmap <Leader>ws <Plug>(coc-metals-expand-decoration)
 

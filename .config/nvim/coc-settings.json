@@ -1,14 +1,8 @@
 {
-    "diagnostic.virtualText": false,
-    "diagnostic.joinMessageLines": true,
-    "diagnostic.checkCurrentLine": true,
-    "diagnostic.messageTarget": "float",
-    "diagnostic.level": "information",
-    "suggest.autoTrigger": "none",
-    "signature.enable": false,
     "coc.preferences.snippets.enable": false,
     "rust-analyzer.diagnostics.enable": false,
     "codeLens.enable": true,
+    "coc.preferences.formatOnType": true,
     "coc.preferences.formatOnSaveFiletypes": [
         "scala",
         "rust",
