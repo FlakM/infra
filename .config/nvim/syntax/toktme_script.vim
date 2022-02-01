@@ -23,6 +23,7 @@ syn region toktmeString start='"' end='"'
 syn match toktmeInclude "\(include:\)"
 syn match toktmeBot "\(bot:\)"
 syn match toktmeUser "\(user:\)"
+syn match assert "\(assert:\)"
 
 syn match toktmeSpecial "\([\{\}%\+\-=\[\]]\)"
 syn match toktmeSpecial "\(-\+:\)"
@@ -55,6 +56,7 @@ if version >= 508 || !exists("did_toktme_syn_inits")
   HiLink toktmeComment         Comment
   HiLink toktmeString          String
   HiLink toktmeBot             Function
+  HiLink assert                Function
   HiLink toktmeUser            Constant
   HiLink toktmeSpecial         Keyword
   HiLink toktmeInclude         Special

@@ -95,3 +95,4 @@ _fzf_bash_completion_loading_msg() { echo "${PS1@P}${READLINE_LINE}" | tail -n1;
 
 source ~/.bloop_completions.sh
 
+export PATH=$PATH:/usr/local/go/bin

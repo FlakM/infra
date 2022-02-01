@@ -48,7 +48,6 @@ Plug 'stephpy/vim-yaml'
 Plug 'rust-lang/rust.vim'
 Plug 'rhysd/vim-clang-format'
 Plug 'godlygeek/tabular'
-Plug 'plasticboy/vim-markdown'
 
 " Semantic language support
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -63,6 +62,7 @@ Plug 'morhetz/gruvbox'
 Plug 'kyazdani42/nvim-web-devicons' " for file icons
 Plug 'kyazdani42/nvim-tree.lua'
 
+
 call plug#end()
 
 colorscheme gruvbox
@@ -73,12 +73,14 @@ set background=dark
 set clipboard=unnamedplus
 
 " required coc extensions
-let g:coc_global_extensions = ['coc-json', 'coc-git', 'coc-html', 'coc-metals', 'coc-rust-analyzer', 'coc-sh', 'coc-tsserver', 'coc-spell-checker', "coc-cspell-dicts"]
-let g:vimspector_enable_mappings = 'VISUAL_STUDIO'
+let g:coc_global_extensions = ['coc-json', 'coc-git', 'coc-html', 'coc-metals', 'coc-rust-analyzer', 'coc-sh', 'coc-tsserver', 'coc-spell-checker', "coc-cspell-dicts", 'coc-markdownlint']
+let g:vimspector_enable_mappings = 'HUMAN'
+
+let g:vimspector_install_gadgets = [ 'debugpy', 'vscode-go', 'CodeLLDB' ]
 
 " this must be here to stop router from changing directory
 " it seems that ie rust analyzer needs it to provide errors to coc
-let g:rooter_patterns = ['.git', 'Makefile', '*.sln', 'build/env.sh', "Cargo.toml", "settings.gradle"]
+let g:rooter_patterns = ['.git', 'Makefile', '*.sln', 'build/env.sh', "Cargo.toml", "settings.gradle", "package.json"]
 
 set termguicolors " this variable must be enabled for colors to be applied properly
 
@@ -231,20 +233,16 @@ filetype plugin indent on
 set autoindent
 set timeoutlen=300 " http://stackoverflow.com/questions/2158516/delay-before-o-opens-a-new-line
 set encoding=utf-8
+
+
 set scrolloff=2
 set noshowmode
 set hidden
 set nowrap
 set nojoinspaces
-let g:sneak#s_next = 1
-let g:vim_markdown_new_list_item_indent = 0
-let g:vim_markdown_auto_insert_bullets = 0
-let g:vim_markdown_frontmatter = 1
 set printfont=:h10
 set printencoding=utf-8
 set printoptions=paper:letter
-" Always draw sign column. Prevent buffer moving when adding/deleting sign.
-set signcolumn=yes
 
 " Settings needed for .lvimrc
 set exrc
@@ -499,7 +497,6 @@ au Filetype rust set colorcolumn=100
 
 " Help filetype detection
 autocmd BufRead *.plot set filetype=gnuplot
-autocmd BufRead *.md set filetype=markdown
 autocmd BufRead *.lds set filetype=ld
 autocmd BufRead *.tex set filetype=tex
 autocmd BufRead *.trm set filetype=c
@@ -531,15 +528,12 @@ set nowritebackup
 " Give more space for displaying messages.
 set cmdheight=2
 
-" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
-" delays and poor user experience.
-set updatetime=4300
 
 " Don't pass messages to |ins-completion-menu|.
 set shortmess+=c
 
 " Always show signcolumns
-" set signcolumn=yes
+" set signcolumn=number
 
 " Use tab for trigger completion with characters ahead and navigate.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
@@ -583,7 +577,7 @@ function! s:show_documentation()
   elseif (coc#rpc#ready())
     call CocActionAsync('doHover')
   else
-    execute '!' . &keywordprg . " " . expand('<cword>')
+    execute '!' . &keywordprg . " " .:h CocAction('ensureDocument') expand('<cword>')
   endif
 endfunction
 
