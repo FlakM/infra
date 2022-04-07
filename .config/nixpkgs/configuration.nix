@@ -7,7 +7,7 @@
 {
   imports =
     [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
+      /etc/nixos/hardware-configuration.nix
       <home-manager/nixos>
     ];
 
@@ -48,6 +48,7 @@
   # sound.enable = true;
   # hardware.pulseaudio.enable = true;
 
+
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
@@ -59,6 +60,14 @@
 
   home-manager.users.flakm = { pkgs, ... }: {
      programs.bash.enable = true;
+     bashrcExtra = ''
+       . ~/.localrc
+       . ~/.localrc_raves
+     '';
+     profileExtra = ''
+       . ~/.localrc
+       . ~/.localrc_raves
+     '';
   };
 
   hardware.video.hidpi.enable = true;
