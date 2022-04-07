@@ -1,0 +1,12 @@
+[$Version]
+update_info=kwinrules.upd:replace-placement-string-to-enum
+
+[1]
+Description=hide title bar
+noborder=true
+noborderrule=2
+wmclass=.*
+wmclassmatch=3
+
+[General]
+count=1

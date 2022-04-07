@@ -1,0 +1,4 @@
+[General]
+MaxClipItems=2048
+TimeoutForActionPopups=10
+Version=5.21.4

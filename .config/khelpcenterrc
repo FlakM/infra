@@ -1,0 +1,17 @@
+[HTML Settings]
+AutomaticDetectionLanguage=1
+
+[MainWindow]
+RestorePositionForNextInstance=false
+State=AAAA/wAAAAD9AAAAAAAAAyAAAAH1AAAABAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAWAG0AYQBpAG4AVABvAG8AbABCAGEAcgEAAAAA/////wAAAAAAAAAA
+ToolBarsMovable=Disabled
+eDP-1 DP-1 XPosition 2194x1234=1019
+eDP-1 DP-1 YPosition 2194x1234=600
+eDP-1 XPosition 2194x1234=1019
+eDP-1 YPosition 2194x1234=600
+
+[MainWindowState]
+Splitter=220,579
+
+[Search]
+ScopeSelection=0

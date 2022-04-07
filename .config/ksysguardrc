@@ -1,0 +1,12 @@
+[MainWindow]
+CommandList=
+HostList=
+SelectedSheets[$e]=ProcessTable.sgrd,SystemLoad2.sgrd
+SplitterSizeList=10,90
+State=AAAA/wAAAAD9AAAAAAAADwAAAAfPAAAABAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAWAG0AYQBpAG4AVABvAG8AbABCAGEAcgAAAAAA/////wAAAAAAAAAA
+ToolBarsMovable=Disabled
+currentSheet=0
+eDP-1 Window-Maximized 3840x2160=true
+eDP-1 XPosition 3840x2160=0
+eDP-1 YPosition 3840x2160=0
+isMinimized=false
