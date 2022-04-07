@@ -58,16 +58,45 @@
      extraGroups = [ "wheel" "docker" ]; # Enable ‘sudo’ for the user.
    };
 
+  programs.home-manager.enable = true;
+  home.stateVersion = "21.11";
+
   home-manager.users.flakm = { pkgs, ... }: {
-     programs.bash.enable = true;
-     bashrcExtra = ''
-       . ~/.localrc
-       . ~/.localrc_raves
-     '';
-     profileExtra = ''
-       . ~/.localrc
-       . ~/.localrc_raves
-     '';
+     programs.bash = {
+        enable = true;
+        bashrcExtra = ''
+          . ~/.localrc
+          . ~/.localrc_raves
+        '';
+        profileExtra = ''
+          . ~/.localrc
+          . ~/.localrc_raves
+        '';
+     };
+     programs.git = {
+       enable = true;
+       userName  = "FlakM";
+       userEmail = "maciej.jan.flak@gmail.com";
+       signing = {
+          key = "AD7821B8";
+          signByDefault = true;
+       };
+     };
+
+     services.gpg-agent = {     
+       enable = true;
+       defaultCacheTtl = 1800;
+       enableSshSupport = true;
+     };
+
+     programs.zsh = {
+       enable = true;
+       oh-my-zsh = {
+         enable = true;
+         plugins = [ "git" "fzf" "fd" "cargo" ];
+         theme = "robbyrussell";
+       };
+     };  
   };
 
   hardware.video.hidpi.enable = true;

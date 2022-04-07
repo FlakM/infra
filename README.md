@@ -39,7 +39,7 @@ config config --local status.showUntrackedFiles no
 # needed for home manager import
 # https://nix-community.github.io/home-manager/index.html#sec-install-nixos-module
 exit
-ln -s ~/.config/nixpkgs/configuration.nix /etc/nixos/configuration.nix
+ln -s /home/flakm/.config/nixpkgs/configuration.nix /etc/nixos/configuration.nix
 nix-channel --add https://github.com/nix-community/home-manager/archive/release-21.11.tar.gz home-manager
 nix-channel --update
 
