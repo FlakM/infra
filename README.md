@@ -6,22 +6,17 @@
 This part is inspired by: https://www.atlassian.com/git/tutorials/dotfiles
 
 ```bash
-nix-env -iA git
+nix-env -iA nixos.git
+mv /etc/nixos/configuration.nix /etc/nixos/configuration.nix_backup
 
-mkdir deleteme
-git clone --bare https://github.com/FlakM/infra.git deleteme
-
-cp /etc/nixos/configuration.nix /etc/nixos/configuration.nix_backup
-cp deleteme/nixos/configuration.nix /etc/nixos/configuration.nix
-
-# install 
-nixos-rebuild switch
-
+mkdir /home/flakm
+groupadd -g 1000 flakm
+useradd -m flakm -g 1000
 passwd flakm
 su - flakm
 
 echo ".cfg" >> .gitignore
-git clone --bare https://github.com/FlakM/infra.git $HOME/.cfg
+git clone --bare --branch nix_os https://github.com/FlakM/infra.git $HOME/.cfg
 alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 
 # this will backup old files
@@ -40,13 +35,22 @@ xargs -I{} bash -c 'mvParent "{}"'
 config checkout
 config config --local status.showUntrackedFiles no
 
-mkdir -p ~/.config/nixpkgs/
-cat ~/nixos/home.nix > ~/.config/nixpkgs/home.nix
-
+# install 
 # needed for home manager import
 # https://nix-community.github.io/home-manager/index.html#sec-install-nixos-module
+exit
+ln -s ~/.config/nixpkgs/configuration.nix /etc/nixos/configuration.nix
 nix-channel --add https://github.com/nix-community/home-manager/archive/release-21.11.tar.gz home-manager
 nix-channel --update
+
+# Install nix os stuff
+nixos-rebuild switch
+
+# Install the user environment
+home-manager switch
+
+
+# For secrets
 cd ~/.gnupg
 wget https://raw.githubusercontent.com/drduh/config/master/gpg-agent.conf
 cat > ~/.ssh/id_rsa_yubikey.pub <<EOF
