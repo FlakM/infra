@@ -1,13 +1,52 @@
 # infra
 
-## Setting up yubikey via gpg and ssh
 
-Run following script inspired by: https://github.com/drduh/YubiKey-Guide#prepare-environment
+## Setup dotfiles
+
+This part is inspired by: https://www.atlassian.com/git/tutorials/dotfiles
 
 ```bash
-sudo apt update
-sudo apt -y install wget gnupg2 gnupg-agent dirmngr cryptsetup scdaemon pcscd secure-delete hopenpgp-tools yubikey-personalization
+nix-env -iA git
 
+mkdir deleteme
+git clone --bare https://github.com/FlakM/infra.git deleteme
+
+cp /etc/nixos/configuration.nix /etc/nixos/configuration.nix_backup
+cp deleteme/nixos/configuration.nix /etc/nixos/configuration.nix
+
+# install 
+nixos-rebuild switch
+
+passwd flakm
+su - flakm
+
+echo ".cfg" >> .gitignore
+git clone --bare https://github.com/FlakM/infra.git $HOME/.cfg
+alias config='git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
+
+# this will backup old files
+function mvParent(){
+  d=$(dirname "$1")
+  mkdir -p ".config-backup/$1"
+  mv "$1" ".config-backup/$1"
+}
+cd ~
+export -f mvParent
+mkdir -p .config-backup && \
+config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | \
+xargs -I{} bash -c 'mvParent "{}"'
+
+
+config checkout
+config config --local status.showUntrackedFiles no
+
+mkdir -p ~/.config/nixpkgs/
+cat ~/nixos/home.nix > ~/.config/nixpkgs/home.nix
+
+# needed for home manager import
+# https://nix-community.github.io/home-manager/index.html#sec-install-nixos-module
+nix-channel --add https://github.com/nix-community/home-manager/archive/release-21.11.tar.gz home-manager
+nix-channel --update
 cd ~/.gnupg
 wget https://raw.githubusercontent.com/drduh/config/master/gpg-agent.conf
 cat > ~/.ssh/id_rsa_yubikey.pub <<EOF
@@ -38,36 +77,12 @@ gpg --edit-key $KEYID
 
 
 gpg --output public.pgp --armor --export maciej.jan.flak@gmail.com
-```
-
-## Setup dotfiles
-
-This part is inspired by: https://www.atlassian.com/git/tutorials/dotfiles
-
-```bash
-sudo apt install -y git curl
-
-echo ".cfg" >> .gitignore
-git clone --bare git@github.com:FlakM/infra.git $HOME/.cfg
-alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 
 
 
-# this will backup old files
-function mvParent(){
-  d=$(dirname "$1")
-  mkdir -p ".config-backup/$1"
-  mv "$1" ".config-backup/$1"
-}
-cd ~
-export -f mvParent
-mkdir -p .config-backup && \
-config checkout 2>&1 | egrep "\s+\." | awk {'print $1'} | \
-xargs -I{} bash -c 'mvParent "{}"'
+bash
+source .bashrc
 
-
-config checkout
-config config --local status.showUntrackedFiles no
 
 # this will unpack secrets stored in encrypted tar.
 import_secrets
