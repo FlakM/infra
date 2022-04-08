@@ -1,17 +1,23 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
 { config, pkgs, ... }:
 
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [ 
       /etc/nixos/hardware-configuration.nix
       <home-manager/nixos>
     ];
 
-  programs.zsh.enable = true;
+
+  nixpkgs.config.allowUnfree = true;
+
+  # if nvidia draws to much power one might try offloading 
+  # https://nixos.wiki/wiki/Nvidia
+  #services.xserver.videoDrivers = [ "nvidia" ];
+  #hardware.opengl.enable = true;
+
+  # Optionally, you may need to select the appropriate driver version for your specific GPU.
+  #hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
+
   users.defaultUserShell = pkgs.zsh;
 
   # Use the systemd-boot EFI boot loader.
@@ -44,9 +50,14 @@
   # services.xserver.xkbOptions = "eurosign:e";
 
 
+  services.onedrive.enable = true;
+  services.dbus.enable = true;
+
   # Enable sound.
-  # sound.enable = true;
-  # hardware.pulseaudio.enable = true;
+  sound.enable = true;
+  hardware.pulseaudio.enable = true;
+
+  virtualisation.docker.enable = true;
 
 
   # Enable touchpad support (enabled default in most desktopManager).
@@ -58,8 +69,6 @@
      extraGroups = [ "wheel" "docker" ]; # Enable ‘sudo’ for the user.
    };
 
-  programs.home-manager.enable = true;
-  home.stateVersion = "21.11";
 
   home-manager.users.flakm = { pkgs, ... }: {
      programs.bash = {
@@ -91,13 +100,31 @@
 
      programs.zsh = {
        enable = true;
-       oh-my-zsh = {
+       autocd = true;
+       enableAutosuggestions = true;
+       enableCompletion = true;
+
+       zplug = {
          enable = true;
-         plugins = [ "git" "fzf" "fd" "cargo" ];
-         theme = "robbyrussell";
+         plugins = [
+           { name = "agkozak/zsh-z"; } # smart CD
+           { name = "zsh-users/zsh-autosuggestions"; } # Simple plugin installation
+           { name = "unixorn/fzf-zsh-plugin"; } 
+           { name = "romkatv/powerlevel10k"; tags = [ as:theme depth:1 ]; } # Installations with additional options. For the list of options, please refer to Zplug README.
+         ];
        };
+
+       initExtra = ''
+         source ~/.p10k.zsh
+         source ~/.localrc
+         source ~/.localrc_raves
+       '';
      };  
   };
+
+  programs.neovim.viAlias = true;
+  programs.neovim.vimAlias = true;
+  environment.variables.EDITOR = "nvim";
 
   hardware.video.hidpi.enable = true;
 
@@ -106,11 +133,47 @@
    environment.systemPackages = with pkgs; [
      vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
      wget
+     curl
      firefox
      git
-     jq
+     unzip
+     zip
+
+     # editors & development
      neovim
      nodejs
+     jetbrains.idea-community
+     jdk8
+     bloop
+     dbeaver
+     rustup
+
+     # utils
+     bat
+     ripgrep
+     fzf
+     delta
+
+
+
+     # vpn/rdp
+     jq
+     openconnect
+     freerdp
+     openvpn
+
+
+     # media
+     spotify
+     gimp
+     vlc
+
+     # office
+     thunderbird
+     teams
+     libreoffice
+     keepassxc
+     dropbox-cli
    ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -132,13 +195,6 @@
   # Or disable the firewall altogether.
   # networking.firewall.enable = false;
 
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "21.11"; # Did you read the comment?
   services.udev.packages = [ pkgs.yubikey-personalization ];
 
 # Depending on the details of your configuration, this section might be necessary or not;
@@ -156,5 +212,40 @@
       enableSSHSupport = true;
     };
   };
+
+  networking.firewall = {
+    allowedTCPPorts = [ 17500 ];
+    allowedUDPPorts = [ 17500 ];
+  };
+
+  systemd.user.services.dropbox = {
+    description = "Dropbox";
+    after = [ "xembedsniproxy.service" ];
+    wants = [ "xembedsniproxy.service" ];
+    wantedBy = [ "graphical-session.target" ];
+    environment = {
+      QT_PLUGIN_PATH = "/run/current-system/sw/" + pkgs.qt5.qtbase.qtPluginPrefix;
+      QML2_IMPORT_PATH = "/run/current-system/sw/" + pkgs.qt5.qtbase.qtQmlPrefix;
+    };
+    serviceConfig = {
+      ExecStart = "${pkgs.dropbox.out}/bin/dropbox";
+      ExecReload = "${pkgs.coreutils.out}/bin/kill -HUP $MAINPID";
+      KillMode = "control-group"; # upstream recommends process
+      Restart = "on-failure";
+      PrivateTmp = true;
+      ProtectSystem = "full";
+      Nice = 10;
+    };
+  };
+
+  # This value determines the NixOS release from which the default
+  # settings for stateful data, like file locations and database versions
+  # on your system were taken. It‘s perfectly fine and recommended to leave
+  # this value at the release version of the first install of this system.
+  # Before changing this value read the documentation for this option
+  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+  system.stateVersion = "21.11"; # Did you read the comment?
 }
+
+
 

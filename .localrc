@@ -61,38 +61,18 @@ import_secrets() {
     rm -f ~/secrets.tar.gz
 }
 
-export GPG_TTY="$(tty)"
-export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-gpgconf --launch gpg-agent
-
-
 title (){
     echo -ne "\033]30;$1\007"
 }
 
-CUSTOM_NVIM_PATH=/usr/local/bin/nvim.appimage
 
 
-reinstall_neovim() {
-    sudo update-alternatives --install /usr/bin/ex ex "${CUSTOM_NVIM_PATH}" 110
-    sudo update-alternatives --install /usr/bin/vi vi "${CUSTOM_NVIM_PATH}" 110
-    sudo update-alternatives --install /usr/bin/view view "${CUSTOM_NVIM_PATH}" 110
-    sudo update-alternatives --install /usr/bin/vim vim "${CUSTOM_NVIM_PATH}" 110
-    sudo update-alternatives --install /usr/bin/vimdiff vimdiff "${CUSTOM_NVIM_PATH}" 110
-}
 
 BAT_THEME=gruvbox-dark
 
-if type rg &> /dev/null; then
-  export FZF_DEFAULT_COMMAND='rg --files'
-  export FZF_DEFAULT_OPTS='-m --height 50% --border'
-fi
 
 
-source /home/flakm/programming/flakm/fzf-tab-completion/bash/fzf-bash-completion.sh
-bind -x '"\t": fzf_bash_completion'
-_fzf_bash_completion_loading_msg() { echo "${PS1@P}${READLINE_LINE}" | tail -n1; }
 
-source ~/.bloop_completions.sh
 
-export PATH=$PATH:/usr/local/go/bin
+
+export PATH=$PATH:$HOME/.cargo/bin

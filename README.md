@@ -1,14 +1,18 @@
 # infra
 
-
 ## Setup dotfiles
 
 This part is inspired by: https://www.atlassian.com/git/tutorials/dotfiles
 
 ```bash
-nix-env -iA nixos.git
+# to download code and copy instructions
+
+nix-env -iA nixos.git nixos.firefox
 mv /etc/nixos/configuration.nix /etc/nixos/configuration.nix_backup
 
+
+# we need a user created before cloning the repo
+# it contains .dotfiles
 mkdir /home/flakm
 groupadd -g 1000 flakm
 useradd -m flakm -g 1000
@@ -25,6 +29,7 @@ function mvParent(){
   mkdir -p ".config-backup/$1"
   mv "$1" ".config-backup/$1"
 }
+
 cd ~
 export -f mvParent
 mkdir -p .config-backup && \
@@ -46,12 +51,10 @@ nix-channel --update
 # Install nix os stuff
 nixos-rebuild switch
 
-# Install the user environment
-home-manager switch
-
 
 # For secrets
 cd ~/.gnupg
+mkdir -p ~/.ssh
 wget https://raw.githubusercontent.com/drduh/config/master/gpg-agent.conf
 cat > ~/.ssh/id_rsa_yubikey.pub <<EOF
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDh6bzSNqVZ1Ba0Uyp/EqThvDdbaAjsJ4GvYN40f/p9Wl4LcW/MQP8EYLvBTqTluAwRXqFa6fVpa0Y9Hq4kyNG62HiMoQRjujt6d3b+GU/pq7NN8+Oed9rCF6TxhtLdcvJWHTbcq9qIGs2s3eYDlMy+9koTEJ7Jnux0eGxObUaGteQUS1cOZ5k9PQg+WX5ncWa3QvqJNxx446+OzVoHgzZytvXeJMg91gKN9wAhKgfibJ4SpQYDHYcTrOILm7DLVghrcU2aFqLKVTrHSWSugfLkqeorRadHckRDr2VUzm5eXjcs4ESjrG6viKMKmlF1wxHoBrtfKzJ1nR8TGWWeH9NwXJtQ+qRzAhnQaHZyCZ6q4HvPlxxXOmgE+JuU6BCt6YPXAmNEMdMhkqYis4xSzxwWHvko79NnKY72pOIS2GgS6Xon0OxLOJ0mb66yhhZB4hUBb02CpvCMlKSLtvnS+2IcSGeSQBnwBw/wgp1uhr9ieUO/wY5K78w2kYFhR6Iet55gutbikSqDgxzTmuX3Mkjq0L/MVUIRAdmOysrR2Lxlk692IrNYTtUflQLsSfzrp6VQIKPxjfrdFhHIfbPoUdfMf+H06tfwkGONgcej56/fDjFbaHouZ357wcuwDsuMGNRCdyW7QyBXF/Wi28nPq/KSeOdCy+q9KDuOYsX9n/5Rsw== cardno:000614320136
@@ -64,12 +67,8 @@ Host github.com
     IdentityFile ~/.ssh/id_rsa_yubikey.pub
 EOF
 
-echo pinentry-program /usr/bin/pinentry-qt >> ~/.gnupg/gpg-agent.conf
 gpg --card-status
 
-export GPG_TTY="$(tty)"
-export SSH_AUTH_SOCK="/run/user/$UID/gnupg/S.gpg-agent.ssh"
-gpg-connect-agent updatestartuptty /bye > /dev/null
 
 ssh git@github.com -vvv
 
@@ -92,27 +91,7 @@ source .bashrc
 import_secrets
 ```
 
-## Run installation script
-
-```bash
-# install dependencies
-sudo apt update
-sudo apt install -y python3-pip git curl wget unzip zip apt-transport-https software-properties-common \
-    ca-certificates \
-    curl \
-    gnupg \
-    lsb-release
-
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-sudo python3 get-pip.py
-sudo python3 -m pip install ansible    
-
-ansible-playbook ~/programming/flakm/ansible_setup/playbooks/site.yml \
-  -c local --extra-vars "home=/home/flakm" \
-  --ask-become-pass
-```
-
-## Manual tasks
+# Manual tasks
 
 Some tasks are very hard to automate so run those by yourself:
 
@@ -129,10 +108,10 @@ ls -al ~/Dropbox
 
 
 # configure onedrive
-onedrive
-systemctl --user enable onedrive
-systemctl --user start onedrive
-systemctl --user status onedrive
+onedrive --confdir=/$HOME/.config/onedrive-0
+systemctl --user enable onedrive@onedrive-0.service
+systemctl --user start onedrive@onedrive-0.service
+systemctl --user status onedrive@onedrive-0.service
 
 
 # login to docker accounts
@@ -151,11 +130,6 @@ tar -jcvf thunderbird-email-profile.tar.bz2 .thunderbird
 rm -rf ~/.thunderbird
 tar -xvf thunderbird-email-profile.tar.bz2
 ```
-
-
-
-
-
 
 # Taski:
 
