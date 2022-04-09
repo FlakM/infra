@@ -1,22 +1,18 @@
+#sudo nix-channel --add https://github.com/NixOS/nixos-hardware/archive/master.tar.gz nixos-hardware
+#sudo nix-channel --update
 { config, pkgs, ... }:
 
 {
   imports =
     [ 
+      # https://raw.githubusercontent.com/NixOS/nixos-hardware/master/README.md
+      <nixos-hardware/dell/xps/15-9560/intel>
       /etc/nixos/hardware-configuration.nix
       <home-manager/nixos>
     ];
 
-
+  # allow apps like teams etc...
   nixpkgs.config.allowUnfree = true;
-
-  # if nvidia draws to much power one might try offloading 
-  # https://nixos.wiki/wiki/Nvidia
-  #services.xserver.videoDrivers = [ "nvidia" ];
-  #hardware.opengl.enable = true;
-
-  # Optionally, you may need to select the appropriate driver version for your specific GPU.
-  #hardware.nvidia.package = config.boot.kernelPackages.nvidiaPackages.stable;
 
   users.defaultUserShell = pkgs.zsh;
 
@@ -25,7 +21,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   # networking.hostName = "nixos"; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
+  networking.networkmanager.enable = true;
 
   time.timeZone = "Europe/Warsaw";
 
@@ -33,7 +29,8 @@
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
   networking.useDHCP = false;
-  networking.interfaces.enp0s9.useDHCP = true;
+  #networking.interfaces.enp0s9.useDHCP = true;
+  #networking.interfaces.eth0.useDHCP = true;
 
 
   # Enable the X11 windowing system.
@@ -59,9 +56,6 @@
 
   virtualisation.docker.enable = true;
 
-
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
    users.users.flakm = {
@@ -92,6 +86,9 @@
        };
      };
 
+     nixpkgs.config.allowUnfree = true;
+     services.dropbox.enable = true;
+
      services.gpg-agent = {     
        enable = true;
        defaultCacheTtl = 1800;
@@ -114,6 +111,11 @@
          ];
        };
 
+       shellAliases = {
+          ll = "ls -l";
+          update = "sudo nixos-rebuild switch";
+        };
+
        initExtra = ''
          source ~/.p10k.zsh
          source ~/.localrc
@@ -122,6 +124,7 @@
      };  
   };
 
+  programs.neovim.enable = true;
   programs.neovim.viAlias = true;
   programs.neovim.vimAlias = true;
   environment.variables.EDITOR = "nvim";
@@ -131,7 +134,6 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
    environment.systemPackages = with pkgs; [
-     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
      wget
      curl
      firefox
@@ -140,7 +142,6 @@
      zip
 
      # editors & development
-     neovim
      nodejs
      jetbrains.idea-community
      jdk8
@@ -155,7 +156,6 @@
      delta
 
 
-
      # vpn/rdp
      jq
      openconnect
@@ -167,13 +167,13 @@
      spotify
      gimp
      vlc
+     signal-desktop
 
      # office
      thunderbird
      teams
      libreoffice
      keepassxc
-     dropbox-cli
    ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -218,25 +218,6 @@
     allowedUDPPorts = [ 17500 ];
   };
 
-  systemd.user.services.dropbox = {
-    description = "Dropbox";
-    after = [ "xembedsniproxy.service" ];
-    wants = [ "xembedsniproxy.service" ];
-    wantedBy = [ "graphical-session.target" ];
-    environment = {
-      QT_PLUGIN_PATH = "/run/current-system/sw/" + pkgs.qt5.qtbase.qtPluginPrefix;
-      QML2_IMPORT_PATH = "/run/current-system/sw/" + pkgs.qt5.qtbase.qtQmlPrefix;
-    };
-    serviceConfig = {
-      ExecStart = "${pkgs.dropbox.out}/bin/dropbox";
-      ExecReload = "${pkgs.coreutils.out}/bin/kill -HUP $MAINPID";
-      KillMode = "control-group"; # upstream recommends process
-      Restart = "on-failure";
-      PrivateTmp = true;
-      ProtectSystem = "full";
-      Nice = 10;
-    };
-  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
