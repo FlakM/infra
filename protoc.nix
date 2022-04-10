@@ -5,6 +5,6 @@
 
   targetPkgs = pkgs: [ pkgs.jdk8 pkgs.glibc pkgs.gcc ];
 
-  runScript = "./gradlew build -x test";
+  runScript = "zsh";
 }).env
 

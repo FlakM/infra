@@ -1,10 +1,9 @@
-#sudo nix-channel --add https://github.com/NixOS/nixos-hardware/archive/master.tar.gz nixos-hardware
-#sudo nix-channel --update
 { config, pkgs, ... }:
 
 {
   imports =
     [ 
+      # read here about hardware conf:
       # https://raw.githubusercontent.com/NixOS/nixos-hardware/master/README.md
       <nixos-hardware/dell/xps/15-9560/intel>
       /etc/nixos/hardware-configuration.nix
@@ -14,7 +13,8 @@
   # allow apps like teams etc...
   nixpkgs.config.allowUnfree = true;
 
-  users.defaultUserShell = pkgs.zsh;
+  # to mount ntfs external disk
+  boot.supportedFilesystems = [ "ntfs" ];
 
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
@@ -55,10 +55,13 @@
   hardware.pulseaudio.enable = true;
 
   virtualisation.docker.enable = true;
-
+  # otherwise docker swarm init won't work
+  # https://docs.docker.com/config/containers/live-restore/
+  virtualisation.docker.liveRestore = false;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
    users.users.flakm = {
+     shell = pkgs.zsh;
      isNormalUser = true;
      extraGroups = [ "wheel" "docker" ]; # Enable ‘sudo’ for the user.
    };
@@ -112,21 +115,29 @@
        };
 
        shellAliases = {
+          ls = "ls --color";
           ll = "ls -l";
           update = "sudo nixos-rebuild switch";
+	  vim = "nvim";
+	  vi = "vi";
         };
 
        initExtra = ''
          source ~/.p10k.zsh
          source ~/.localrc
          source ~/.localrc_raves
+
+	 # home end
+	 bindkey  "^[[H"   beginning-of-line
+     bindkey  "^[[F"   end-of-line
+
+	 # ctrl rigtArrow ctrl left arrow
+	 bindkey  "^[[1;5C" forward-word
+     bindkey  "^[[1;5D" backward-word
        '';
      };  
   };
 
-  programs.neovim.enable = true;
-  programs.neovim.viAlias = true;
-  programs.neovim.vimAlias = true;
   environment.variables.EDITOR = "nvim";
 
   hardware.video.hidpi.enable = true;
@@ -148,12 +159,17 @@
      bloop
      dbeaver
      rustup
+     # If used as nvim module the plugins are not used
+     # https://nixos.wiki/wiki/Neovim
+     neovim
 
      # utils
      bat
+     fd
      ripgrep
      fzf
      delta
+     htop
 
 
      # vpn/rdp
@@ -171,6 +187,7 @@
 
      # office
      thunderbird
+     gpgme
      teams
      libreoffice
      keepassxc

@@ -62,6 +62,7 @@ Plug 'morhetz/gruvbox'
 Plug 'kyazdani42/nvim-web-devicons' " for file icons
 Plug 'kyazdani42/nvim-tree.lua'
 
+Plug 'LnL7/vim-nix'
 
 call plug#end()
 

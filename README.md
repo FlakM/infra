@@ -44,8 +44,17 @@ config config --local status.showUntrackedFiles no
 # needed for home manager import
 # https://nix-community.github.io/home-manager/index.html#sec-install-nixos-module
 exit
+
+
+# install home conf in /etc/nixos/configuration.nix
 ln -s /home/flakm/.config/nixpkgs/configuration.nix /etc/nixos/configuration.nix
+
+# home manager repo
 nix-channel --add https://github.com/nix-community/home-manager/archive/release-21.11.tar.gz home-manager
+nix-channel --update
+
+# hardware repo
+nix-channel --add https://github.com/NixOS/nixos-hardware/archive/master.tar.gz nixos-hardware
 nix-channel --update
 
 # Install nix os stuff
@@ -99,13 +108,9 @@ Some tasks are very hard to automate so run those by yourself:
 # unpack secrets if you haven't done that already:
 import_secrets
 
+
 # configure dropbox
-~/.dropbox-dist/dropboxd
-systemctl --user enable dropbox
-systemctl --user status dropbox
-ls -al ~/Dropbox
-
-
+dropbox
 
 # configure onedrive
 onedrive --confdir=/$HOME/.config/onedrive-0
@@ -113,10 +118,8 @@ systemctl --user enable onedrive@onedrive-0.service
 systemctl --user start onedrive@onedrive-0.service
 systemctl --user status onedrive@onedrive-0.service
 
-
-# login to docker accounts
-mkdir ~/.docker
-mv ~/.secrets/config.json ~/.docker/config.json
+nix-shell ~/rust.nix --run "cargo install proximity-sort"
+nix-shell ~/rust.nix --run "cargo install --git https://github.com/FlakM/google_auth.git"
 ```
 
 ## Backup of important stuff:
@@ -129,6 +132,15 @@ tar -jcvf thunderbird-email-profile.tar.bz2 .thunderbird
 # restoring
 rm -rf ~/.thunderbird
 tar -xvf thunderbird-email-profile.tar.bz2
+
+# you will have to find correct directory for config
+# for me it was m3fpplvi.default on nixos and wnjwbsdj.default-release
+# on ubuntu
+https://support.mozilla.org/en-US/kb/moving-thunderbird-data-to-a-new-computer
+
+
+# enable gpg with yubikey
+https://anweshadas.in/how-to-use-yubikey-or-any-gpg-smartcard-in-thunderbird-78/
 ```
 
 # Taski:
