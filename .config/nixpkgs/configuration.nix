@@ -37,6 +37,12 @@
   services.xserver.enable = true;
 
 
+  services.undervolt = {
+    enable = true;
+    coreOffset = -150;
+    gpuOffset = -100;
+  };
+
   # Enable the Plasma 5 Desktop Environment.
   services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
@@ -118,8 +124,9 @@
           ls = "ls --color";
           ll = "ls -l";
           update = "sudo nixos-rebuild switch";
-	  vim = "nvim";
-	  vi = "vi";
+          config = "git --git-dir=$HOME/.cfg/ --work-tree=$HOME";
+	      vim = "nvim";
+	      vi = "vi";
         };
 
        initExtra = ''
@@ -140,6 +147,7 @@
 
   environment.variables.EDITOR = "nvim";
 
+
   hardware.video.hidpi.enable = true;
 
   # List packages installed in system profile. To search, run:
@@ -155,8 +163,6 @@
      # editors & development
      nodejs
      jetbrains.idea-community
-     jdk8
-     bloop
      dbeaver
      rustup
      # If used as nvim module the plugins are not used
@@ -170,6 +176,7 @@
      fzf
      delta
      htop
+     timewarrior
 
 
      # vpn/rdp
@@ -228,6 +235,17 @@
       enable = true;
       enableSSHSupport = true;
     };
+    # This adds JAVA_HOME to the global environment, by sourcing the jdk's
+    # setup-hook on shell init. It is equivalent to starting a shell through 
+    # 'nix-shell -p jdk', or roughly the following system-wide configuration:
+    # 
+    #   environment.variables.JAVA_HOME = ${pkgs.jdk.home}/lib/openjdk;
+    #   environment.systemPackages = [ pkgs.jdk ];
+    java = {
+      enable = true;
+      package = pkgs.jdk8;
+    };
+    kdeconnect.enable = true;
   };
 
   networking.firewall = {
