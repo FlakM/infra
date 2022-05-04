@@ -1,6 +1,8 @@
 { config, pkgs, ... }:
 
-{
+let unstable = import <nixos-unstable> { config = { allowUnfree = true; }; };
+
+in {
   imports =
     [ 
       # read here about hardware conf:
@@ -46,11 +48,12 @@
   # Enable the Plasma 5 Desktop Environment.
   services.xserver.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
-  services.spice-vdagentd.enable = true;
 
   # Configure keymap in X11
   # services.xserver.layout = "us";
   # services.xserver.xkbOptions = "eurosign:e";
+
+  i18n.defaultLocale = "en_US.UTF-8";
 
 
   services.onedrive.enable = true;
@@ -96,7 +99,6 @@
      };
 
      nixpkgs.config.allowUnfree = true;
-     services.dropbox.enable = true;
 
      services.gpg-agent = {     
        enable = true;
@@ -130,22 +132,24 @@
         };
 
        initExtra = ''
-         source ~/.p10k.zsh
-         source ~/.localrc
-         source ~/.localrc_raves
+source ~/.p10k.zsh
+source ~/.localrc
+source ~/.localrc_raves
 
-	 # home end
-	 bindkey  "^[[H"   beginning-of-line
-     bindkey  "^[[F"   end-of-line
+# home end
+bindkey  "^[[H"   beginning-of-line
+bindkey  "^[[F"   end-of-line
 
-	 # ctrl rigtArrow ctrl left arrow
-	 bindkey  "^[[1;5C" forward-word
-     bindkey  "^[[1;5D" backward-word
+# ctrl rigtArrow ctrl left arrow
+bindkey  "^[[1;5C" forward-word
+bindkey  "^[[1;5D" backward-word
+bindkey  "^[[1;3C" forward-word
+bindkey  "^[[1;eD" backward-word
        '';
      };  
   };
 
-  environment.variables.EDITOR = "nvim";
+  environment.variables.EDITOR = "${pkgs.neovim}/bin/nvim";
 
 
   hardware.video.hidpi.enable = true;
@@ -167,7 +171,10 @@
      rustup
      # If used as nvim module the plugins are not used
      # https://nixos.wiki/wiki/Neovim
-     neovim
+     unstable.neovim
+     xclip
+     unstable.bloop
+     gcc
 
      # utils
      bat
@@ -198,6 +205,13 @@
      teams
      libreoffice
      keepassxc
+     unstable.dropbox-cli
+
+     # spelling
+     aspell
+     aspellDicts.pl
+     aspellDicts.en
+     aspellDicts.en-computers
    ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -253,6 +267,23 @@
     allowedUDPPorts = [ 17500 ];
   };
 
+  systemd.user.services.dropbox = {
+    description = "Dropbox";
+    wantedBy = [ "graphical-session.target" ];
+    environment = {
+      QT_PLUGIN_PATH = "/run/current-system/sw/" + pkgs.qt5.qtbase.qtPluginPrefix;
+      QML2_IMPORT_PATH = "/run/current-system/sw/" + pkgs.qt5.qtbase.qtQmlPrefix;
+    };
+    serviceConfig = {
+      ExecStart = "${pkgs.dropbox.out}/bin/dropbox";
+      ExecReload = "${pkgs.coreutils.out}/bin/kill -HUP $MAINPID";
+      KillMode = "control-group"; # upstream recommends process
+      Restart = "on-failure";
+      PrivateTmp = true;
+      ProtectSystem = "full";
+      Nice = 10;
+    };
+  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

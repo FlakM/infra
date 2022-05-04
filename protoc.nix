@@ -5,6 +5,6 @@
 
   targetPkgs = pkgs: [ pkgs.jdk8 pkgs.glibc pkgs.gcc ];
 
-  runScript = "zsh";
+  runScript = "bash";
 }).env
 

@@ -2,16 +2,12 @@ set shell=/bin/bash
 let mapleader = "\<Space>"
 
 
-" fajne rzeczy do odkrycia:
-" 1. jak skopiować relatywną sieżkę do buforu żeby np móc udostępnić
-"    lokalizację pliku
-" 2. jak przejść do poprzedniego miejsca w buforze po wykonaniu operacji np
-"    gd
-" 3. Jak przeglądać strukturę w navigation bar np sources rustowych
-" 4. ogarnąć skrót do reformata
-" 5. 
 
-
+" TODO
+"
+" 1. Add escape in tree sitter https://github.com/nvim-telescope/telescope.nvim/wiki/Configuration-Recipes#mapping-esc-to-quit-in-insert-mode
+" 2. Test debug with dab
+"
 
 
 
@@ -49,107 +45,88 @@ Plug 'rust-lang/rust.vim'
 Plug 'rhysd/vim-clang-format'
 Plug 'godlygeek/tabular'
 
-" Semantic language support
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
-" Debugging with coc
-Plug 'puremourning/vimspector'
 
 " Theme
 Plug 'morhetz/gruvbox'
 
-" Tree viewer
+Plug 'LnL7/vim-nix'
+
+
+
+Plug 'nvim-lua/plenary.nvim'
+Plug 'scalameta/nvim-metals'
+Plug 'mfussenegger/nvim-dap'
+
+"Plug 'neovim/nvim-lspconfig'
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'hrsh7th/nvim-cmp'
+
+" For vsnip users.
+Plug 'hrsh7th/cmp-vsnip'
+Plug 'hrsh7th/vim-vsnip'
+Plug 'hrsh7th/nvim-cmp'
+Plug 'hrsh7th/cmp-nvim-lsp'
+
+
+Plug 'kevinhwang91/nvim-bqf'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-telescope/telescope-fzy-native.nvim'
+
+
+" tree viewer
 Plug 'kyazdani42/nvim-web-devicons' " for file icons
 Plug 'kyazdani42/nvim-tree.lua'
 
-Plug 'LnL7/vim-nix'
+" Git gutter
+Plug 'airblade/vim-gitgutter'
+
 
 call plug#end()
+
+nnoremap <C-n> :NvimTreeToggle<CR>
+nnoremap <leader>r :NvimTreeRefresh<CR>
+nnoremap <leader>n :NvimTreeFindFile<CR>
+
 
 colorscheme gruvbox
 "set background=light
 set background=dark
 
+lua << EOF
+require('metals-config')
+EOF
+
+
+
+lua << EOF
+require'nvim-tree'.setup {
+  view = {
+    width = 50,
+  },
+  update_focused_file = {
+    enable = true,
+  },
+} 
+EOF
+
+" Find files using Telescope command-line sugar.
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+
 " use system clipboard to copy and paste
 set clipboard=unnamedplus
 
-" required coc extensions
-let g:coc_global_extensions = ['coc-json', 'coc-git', 'coc-html', 'coc-metals', 'coc-rust-analyzer', 'coc-sh', 'coc-tsserver', 'coc-spell-checker', "coc-cspell-dicts", 'coc-markdownlint']
-let g:vimspector_enable_mappings = 'HUMAN'
 
-let g:vimspector_install_gadgets = [ 'debugpy', 'vscode-go', 'CodeLLDB' ]
 
 " this must be here to stop router from changing directory
 " it seems that ie rust analyzer needs it to provide errors to coc
 let g:rooter_patterns = ['.git', 'Makefile', '*.sln', 'build/env.sh', "Cargo.toml", "settings.gradle", "package.json"]
 
 set termguicolors " this variable must be enabled for colors to be applied properly
-
-
-lua << EOF
-require'nvim-tree'.setup {
-  hijack_cursor       = false,
-  update_cwd          = false,
-  update_to_buf_dir   = {
-    enable = true,
-    auto_open = true,
-  },
-  diagnostics = {
-    enable = false,
-    icons = {
-      hint = "",
-      info = "",
-      warning = "",
-      error = "",
-    }
-  },
-  update_focused_file = {
-    enable      = true,
-    update_cwd  = false,
-    ignore_list = {}
-  },
-  system_open = {
-    cmd  = nil,
-    args = {}
-  },
-  filters = {
-    dotfiles = false,
-    custom = {}
-  },
-  view = {
-    width = 70,
-    height = 30,
-    hide_root_folder = false,
-    side = 'left',
-    auto_resize = true,
-    mappings = {
-      custom_only = false,
-      list = {}
-    }
-  }
-}
-
-EOF
-
-nnoremap <C-n> :NvimTreeToggle<CR>
-nnoremap <leader>r :NvimTreeRefresh<CR>
-nnoremap <leader>n :NvimTreeFindFile<CR>
-" NvimTreeOpen, NvimTreeClose, NvimTreeFocus, NvimTreeFindFileToggle, and NvimTreeResize are also available if you need them
-"Use 24-bit (true-color) mode in Vim/Neovim when outside tmux.
-"If you're using tmux version 2.2 or later, you can remove the outermost $TMUX check and use tmux's 24-bit color support
-"(see < http://sunaku.github.io/tmux-24bit-color.html#usage > for more information.)
-if (empty($TMUX))
-  if (has("nvim"))
-    "For Neovim 0.1.3 and 0.1.4 < https://github.com/neovim/neovim/pull/2198 >
-    let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-  endif
-  "For Neovim > 0.1.5 and Vim > patch 7.4.1799 < https://github.com/vim/vim/commit/61be73bb0f965a895bfb064ea3e55476ac175162 >
-  "Based on Vim patch 7.4.1770 (`guicolors` option) < https://github.com/vim/vim/commit/8a633e3427b47286869aa4b96f2bfc1fe65b25cd >
-  " < https://github.com/neovim/neovim/wiki/Following-HEAD#20160511 >
-  if (has("termguicolors"))
-    set termguicolors
-  endif
-endif
 
 
 " Plugin settings
@@ -192,12 +169,6 @@ if executable('rg')
 	set grepformat=%f:%l:%c:%m
 endif
 
-" Javascript
-let javaScript_fold=0
-
-" Java
-let java_ignore_javadoc=1
-
 
 " Open hotkeys
 map <C-p> :Files<CR>
@@ -209,20 +180,8 @@ nmap <leader>w :w<CR>
 " Don't confirm .lvimrc
 let g:localvimrc_ask = 0
 
-" rust
-let g:rustfmt_autosave = 1
-let g:rustfmt_emit_files = 1
-let g:rustfmt_fail_silently = 0
-let g:rust_clip_command = 'xclip -selection clipboard'
-
-" Completion
-" Better completion
-" menuone: popup even when there's only one match
-" noinsert: Do not insert text until a selection is made
-" noselect: Do not select, force user to select one from the menu
-set completeopt=menuone,noinsert,noselect
 " Better display for messages
-set cmdheight=2
+"set cmdheight=2
 " You will have bad experience for diagnostic messages when it's default 4000.
 set updatetime=300
 
@@ -258,9 +217,9 @@ set undodir=~/.vimdid
 set undofile
 
 " Decent wildmenu
-set wildmenu
-set wildmode=list:longest
-set wildignore=.hg,.svn,*~,*.png,*.jpg,*.gif,*.settings,Thumbs.db,*.min.js,*.swp,publish/*,intermediate/*,*.o,*.hi,Zend,vendor
+"set wildmenu
+"set wildmode=list:longest
+"set wildignore=.hg,.svn,*~,*.png,*.jpg,*.gif,*.settings,Thumbs.db,*.min.js,*.swp,publish/*,intermediate/*,*.o,*.hi,Zend,vendor
 
 
 " Wrapping options
@@ -296,8 +255,7 @@ set vb t_vb= " No more beeps
 set backspace=2 " Backspace over newlines
 set nofoldenable
 set ttyfast
-" https://github.com/vim/vim/issues/1735#issuecomment-383353563
-set lazyredraw
+
 set synmaxcol=500
 set laststatus=2
 set relativenumber " Relative line numbers
@@ -376,7 +334,7 @@ set expandtab"
 
 " <leader>s for Rg search
 noremap <leader>s :Rg
-let g:fzf_layout = { 'down': '~20%' }
+"let g:fzf_layout = { 'down': '~20%' }
 command! -bang -nargs=* Rg
   \ call fzf#vim#grep(
   \   'rg --column --line-number --no-heading --color=always '.shellescape(<q-args>), 1,
@@ -414,44 +372,18 @@ nnoremap j gj
 nnoremap k gk
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Use <Tab> and <S-Tab> to navigate through popup menu
-inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
-" use <Tab> as trigger keys
-imap <Tab> <Plug>(completion_smart_tab)
-imap <S-Tab> <Plug>(completion_smart_s_tab)
-
-" Enable metals shit
-autocmd FileType json syntax match Comment +\/\/.\+$+
 
 " Help Vim recognize *.sbt and *.sc as Scala files
 au BufRead,BufNewFile *.sbt,*.sc set filetype=scala
 
 
-autocmd BufWritePre *.scala,*.rust :silent call CocAction('runCommand', 'editor.action.organizeImport')
-
-" Used to expand decorations in worksheets
-nmap <Leader>ws <Plug>(coc-metals-expand-decoration)
 
 
 
 
-" Toggle panel with Tree Views
-nnoremap <silent> <space>t :<C-u>CocCommand metals.tvp<CR>
-" Toggle Tree View 'metalsPackages'
-nnoremap <silent> <space>tp :<C-u>CocCommand metals.tvp metalsPackages<CR>
-" Toggle Tree View 'metalsCompile'
-nnoremap <silent> <space>tc :<C-u>CocCommand metals.tvp metalsCompile<CR>
-" Toggle Tree View 'metalsBuild'
-nnoremap <silent> <space>tb :<C-u>CocCommand metals.tvp metalsBuild<CR>
-" Reveal current current class (trait or object) in Tree View 'metalsPackages'
-nnoremap <silent> <space>tf :<C-u>CocCommand metals.revealInTreeView metalsPackages<CR>
 
 
-" Use <TAB> for selections ranges.
-" nmap <silent> <TAB> <Plug>(coc-range-select)
-" xmap <silent> <TAB> <Plug>(coc-range-select)
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -527,150 +459,13 @@ set nobackup
 set nowritebackup
 
 " Give more space for displaying messages.
-set cmdheight=2
+"set cmdheight=2
 
 
 " Don't pass messages to |ins-completion-menu|.
-set shortmess+=c
-
-" Always show signcolumns
-" set signcolumn=number
-
-" Use tab for trigger completion with characters ahead and navigate.
-" NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
-" other plugin before putting this into your config.
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-
-" Use <c-space> to trigger completion.
-inoremap <silent><expr> <c-space> coc#refresh()
-
-" Make <CR> auto-select the first completion item and notify coc.nvim to
-" format on enter, <cr> could be remapped by other vim plugin
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm()
-                              \: "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
-" Use `[g` and `]g` to navigate diagnostics
-" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
-
-" GoTo code navigation.
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-
-" Use K to show documentation in preview window.
-nnoremap <silent> K :call <SID>show_documentation()<CR>
-
-function! s:show_documentation()
-  if (index(['vim','help'], &filetype) >= 0)
-    execute 'h '.expand('<cword>')
-  elseif (coc#rpc#ready())
-    call CocActionAsync('doHover')
-  else
-    execute '!' . &keywordprg . " " .:h CocAction('ensureDocument') expand('<cword>')
-  endif
-endfunction
-
-" Highlight the symbol and its references when holding the cursor.
-autocmd CursorHold * silent call CocActionAsync('highlight')
-
-" Symbol renaming.
-nmap <leader>rn <Plug>(coc-rename)
-
-" Formatting selected code.
-"xmap <leader>f  <Plug>(coc-format-selected)
-"nmap <leader>f  <Plug>(coc-format-selected)
-
-augroup mygroup
-  autocmd!
-  " Setup formatexpr specified filetype(s).
-  autocmd FileType typescript,json,scala setl formatexpr=CocAction('formatSelected')
-  " Update signature help on jump placeholder.
-  autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
-augroup end
-
-" Remap for do codeAction of current line
-xmap <leader>z  <Plug>(coc-codeaction-line)
-nmap <leader>z  <Plug>(coc-codeaction-line)
+"set shortmess+=c
 
 
-" Remap keys for applying codeAction to the current buffer.
-nmap <leader>ac  <Plug>(coc-codeaction)
-" Apply AutoFix to problem on the current line.
-nmap <leader>qf  <Plug>(coc-fix-current)
-
-" For Neovim only!  Trigger for code actions
-" Make sure `"codeLens.enable": true` is set in your coc config
-nmap <leader>cl :<C-u>call CocActionAsync('codeLensAction')<CR>
-
-" Map function and class text objects
-" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-xmap if <Plug>(coc-funcobj-i)
-omap if <Plug>(coc-funcobj-i)
-xmap af <Plug>(coc-funcobj-a)
-omap af <Plug>(coc-funcobj-a)
-xmap ic <Plug>(coc-classobj-i)
-omap ic <Plug>(coc-classobj-i)
-xmap ac <Plug>(coc-classobj-a)
-omap ac <Plug>(coc-classobj-a)
-
-" Remap <C-f> and <C-b> for scroll float windows/popups.
-if has('nvim-0.4.0') || has('patch-8.2.0750')
-  nnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-  nnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-  inoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(1)\<cr>" : "\<Right>"
-  inoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? "\<c-r>=coc#float#scroll(0)\<cr>" : "\<Left>"
-  vnoremap <silent><nowait><expr> <C-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<C-f>"
-  vnoremap <silent><nowait><expr> <C-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<C-b>"
-endif
-
-" Use CTRL-S for selections ranges.
-" Requires 'textDocument/selectionRange' support of language server.
-nmap <silent> <C-s> <Plug>(coc-range-select)
-xmap <silent> <C-s> <Plug>(coc-range-select)
-
-" Add `:Format` command to format current buffer.
-" command! -nargs=0 Format :call CocAction('format')
-
-" Add `:Fold` command to fold current buffer.
-command! -nargs=? Fold :call     CocAction('fold', <f-args>)
-
-" Add `:OR` command for organize imports of the current buffer.
-command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
-
-" Add (Neo)Vim's native statusline support.
-" NOTE: Please see `:h coc-status` for integrations with external plugins that
-" provide custom statusline: lightline.vim, vim-airline.
-set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
-
-" Mappings for CoCList
-" Show all diagnostics.
-nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
-" Manage extensions.
-nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
-" Show commands.
-nnoremap <silent><nowait> <space>C  :<C-u>CocList commands<cr>
-" Find symbol of current document.
-nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
-" Search workspace symbols.
-nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
-" Do default action for next item.
-nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
-" Do default action for previous item.
-nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
-" Resume latest coc list.
-nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 
 
 
@@ -686,3 +481,37 @@ nnoremap <leader>ct :let @+=expand("%:t")<CR>
 
 " directory name (/something/src)
 nnoremap <leader>ch :let @+=expand("%:p:h")<CR>
+
+
+
+
+
+lua << EOF
+require'nvim-treesitter.configs'.setup {
+  -- A list of parser names, or "all"
+  ensure_installed = { "scala" },
+
+  -- Install parsers synchronously (only applied to `ensure_installed`)
+  sync_install = false,
+
+  -- List of parsers to ignore installing (for "all")
+  ignore_install = { "javascript" },
+
+  highlight = {
+    -- `false` will disable the whole extension
+    enable = true,
+
+    -- NOTE: these are the names of the parsers and not the filetype. (for example if you want to
+    -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
+    -- the name of the parser)
+    -- list of language that will be disabled
+    disable = { "scala"},
+
+    -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+    -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+    -- Using this option may slow down your editor, and you may see some duplicate highlights.
+    -- Instead of true it can also be a list of languages
+    additional_vim_regex_highlighting = false,
+  },
+}
+EOF
