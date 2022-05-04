@@ -85,6 +85,10 @@ Plug 'kyazdani42/nvim-tree.lua'
 Plug 'airblade/vim-gitgutter'
 
 
+" rust
+Plug 'neovim/nvim-lspconfig'
+Plug 'simrat39/rust-tools.nvim'
+
 call plug#end()
 
 nnoremap <C-n> :NvimTreeToggle<CR>
@@ -97,7 +101,9 @@ colorscheme gruvbox
 set background=dark
 
 lua << EOF
+require('lsp-config')
 require('metals-config')
+require('rust-config')
 EOF
 
 

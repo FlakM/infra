@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
-
-let unstable = import <nixos-unstable> { config = { allowUnfree = true; }; };
-
+  let 
+    unstable = import <nixos-unstable> { config = { allowUnfree = true; }; };
+    rust-analyzer-new = import (builtins.fetchTarball "https://github.com/OliverEvans96/nixpkgs/archive/refs/heads/bump-rust-analyzer-2022-05-02.tar.gz") {};
 in {
   imports =
     [ 
@@ -165,10 +165,14 @@ bindkey  "^[[1;eD" backward-word
      zip
 
      # editors & development
-     nodejs
      jetbrains.idea-community
+
      dbeaver
-     rustup
+
+     unstable.rustup
+     rust-analyzer-new.rust-analyzer
+     lldb #rust debugging
+
      # If used as nvim module the plugins are not used
      # https://nixos.wiki/wiki/Neovim
      unstable.neovim
