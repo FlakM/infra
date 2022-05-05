@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
   let 
     unstable = import <nixos-unstable> { config = { allowUnfree = true; }; };
-    rust-analyzer-new = import (builtins.fetchTarball "https://github.com/OliverEvans96/nixpkgs/archive/refs/heads/bump-rust-analyzer-2022-05-02.tar.gz") {};
+    #rust-analyzer-new = import (builtins.fetchTarball "https://github.com/OliverEvans96/nixpkgs/archive/refs/heads/bump-rust-analyzer-2022-05-02.tar.gz") {};
 in {
   imports =
     [ 
@@ -170,7 +170,7 @@ bindkey  "^[[1;eD" backward-word
      dbeaver
 
      unstable.rustup
-     rust-analyzer-new.rust-analyzer
+     unstable.rust-analyzer
      lldb #rust debugging
 
      # If used as nvim module the plugins are not used

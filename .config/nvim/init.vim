@@ -1,4 +1,3 @@
-set shell=/bin/bash
 let mapleader = "\<Space>"
 
 
@@ -22,14 +21,11 @@ call plug#begin()
 
 " Load plugins
 " VIM enhancements
-Plug 'ciaranm/securemodelines'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'justinmk/vim-sneak'
 Plug 'chriskempson/base16-vim'
 
 " GUI enhancements
-Plug 'itchyny/lightline.vim'
-Plug 'machakann/vim-highlightedyank'
 Plug 'andymass/vim-matchup'
 
 " Fuzzy finder
@@ -47,7 +43,12 @@ Plug 'godlygeek/tabular'
 
 
 " Theme
-Plug 'morhetz/gruvbox'
+Plug 'marko-cerovac/material.nvim'
+Plug 'bluz71/vim-nightfly-guicolors'
+Plug 'nvim-lualine/lualine.nvim'
+" If you want to have icons in your statusline choose one of these
+Plug 'kyazdani42/nvim-web-devicons'
+
 
 Plug 'LnL7/vim-nix'
 
@@ -91,14 +92,12 @@ Plug 'simrat39/rust-tools.nvim'
 
 call plug#end()
 
+
+
 nnoremap <C-n> :NvimTreeToggle<CR>
 nnoremap <leader>r :NvimTreeRefresh<CR>
 nnoremap <leader>n :NvimTreeFindFile<CR>
 
-
-colorscheme gruvbox
-"set background=light
-set background=dark
 
 lua << EOF
 require('lsp-config')
@@ -112,7 +111,9 @@ lua << EOF
 require'nvim-tree'.setup {
   view = {
     width = 50,
+    hide_root_folder = true,
   },
+  hijack_cursor = true,
   update_focused_file = {
     enable = true,
   },
@@ -133,38 +134,30 @@ set clipboard=unnamedplus
 let g:rooter_patterns = ['.git', 'Makefile', '*.sln', 'build/env.sh', "Cargo.toml", "settings.gradle", "package.json"]
 
 set termguicolors " this variable must be enabled for colors to be applied properly
+colorscheme nightfly
 
-
-" Plugin settings
-let g:secure_modelines_allowed_items = [
-                \ "textwidth",   "tw",
-                \ "softtabstop", "sts",
-                \ "tabstop",     "ts",
-                \ "shiftwidth",  "sw",
-                \ "expandtab",   "et",   "noexpandtab", "noet",
-                \ "filetype",    "ft",
-                \ "foldmethod",  "fdm",
-                \ "readonly",    "ro",   "noreadonly", "noro",
-                \ "rightleft",   "rl",   "norightleft", "norl",
-                \ "colorcolumn"
-                \ ]
-
-" Lightline
-let g:lightline = {
-      \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'readonly', 'filename', 'modified' ] ],
-      \   'right': [ [ 'lineinfo' ],
-      \              [ 'percent' ],
-      \              [ 'fileencoding', 'filetype' ] ],
-      \ },
-      \ 'component_function': {
-      \   'filename': 'LightlineFilename'
-      \ },
-      \ }
-function! LightlineFilename()
-  return expand('%:t') !=# '' ? @% : '[No Name]'
-endfunction
+lua << EOF
+require('lualine').setup({
+    options = {theme = 'nightfly'},
+    sections = {
+       lualine_a = {'mode'},
+       --lualine_a = {'buffers'},
+       lualine_b = {'branch', 'diff', 'diagnostics'},
+       lualine_c = {'buffers'},
+       lualine_x = {'encoding', 'fileformat', 'filetype'},
+       lualine_y = {'progress'},
+       lualine_z = {'location'}
+     },
+     inactive_sections = {
+       lualine_a = {},
+       lualine_b = {},
+       lualine_c = {'filename'},
+       lualine_x = {'location'},
+       lualine_y = {},
+       lualine_z = {}
+     },   
+})
+EOF
 
 " from http://sheerun.net/2014/03/21/how-to-boost-your-vim-productivity/
 if executable('ag')
@@ -495,7 +488,7 @@ nnoremap <leader>ch :let @+=expand("%:p:h")<CR>
 lua << EOF
 require'nvim-treesitter.configs'.setup {
   -- A list of parser names, or "all"
-  ensure_installed = { "scala" },
+  ensure_installed = { "scala", "java", "rust", "json" },
 
   -- Install parsers synchronously (only applied to `ensure_installed`)
   sync_install = false,
@@ -511,7 +504,7 @@ require'nvim-treesitter.configs'.setup {
     -- disable highlighting for the `tex` filetype, you need to include `latex` in this list as this is
     -- the name of the parser)
     -- list of language that will be disabled
-    disable = { "scala"},
+    disable = { },
 
     -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
     -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
