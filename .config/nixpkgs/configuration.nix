@@ -160,6 +160,7 @@ bindkey  "^[[1;eD" backward-word
      wget
      curl
      firefox
+     google-chrome
      git
      unzip
      zip
@@ -178,7 +179,14 @@ bindkey  "^[[1;eD" backward-word
      unstable.neovim
      xclip
      unstable.bloop
+     unstable.coursier
+     unstable.scala_2_12
+     unstable.scalafmt
+     unstable.scalafix
      gcc
+     # tool needed for packaging binaries ie `ar`
+     binutils 
+     inotify-tools
 
      # utils
      bat

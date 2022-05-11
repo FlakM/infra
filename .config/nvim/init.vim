@@ -136,6 +136,7 @@ let g:rooter_patterns = ['.git', 'Makefile', '*.sln', 'build/env.sh', "Cargo.tom
 set termguicolors " this variable must be enabled for colors to be applied properly
 colorscheme nightfly
 
+
 lua << EOF
 require('lualine').setup({
     options = {theme = 'nightfly'},
