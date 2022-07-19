@@ -106,6 +106,15 @@ require('rust-config')
 EOF
 
 
+"
+" zg to add word to dictionary.add
+" z= to check list of alternatives
+"
+autocmd FileType latex,tex,md,markdown,toktme,toktme_script setlocal spelllang=pl,en
+autocmd FileType latex,tex,md,markdown,toktme,toktme_script setlocal spellfile=~/dictionary.add
+autocmd FileType latex,tex,md,markdown,toktme,toktme_script setlocal spell
+
+
 
 lua << EOF
 require'nvim-tree'.setup {

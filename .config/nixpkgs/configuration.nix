@@ -24,13 +24,18 @@ in {
 
   # networking.hostName = "nixos"; # Define your hostname.
   networking.networkmanager.enable = true;
+  networking.wireless.iwd.enable = true;
+  networking.networkmanager.wifi.backend = "iwd";
+  networking.firewall.checkReversePath = "loose";
+
+
 
   time.timeZone = "Europe/Warsaw";
 
   # The global useDHCP flag is deprecated, therefore explicitly set to false here.
   # Per-interface useDHCP will be mandatory in the future, so this generated config
   # replicates the default behaviour.
-  networking.useDHCP = false;
+  #networking.useDHCP = false;
   #networking.interfaces.enp0s9.useDHCP = true;
   #networking.interfaces.eth0.useDHCP = true;
 
@@ -68,6 +73,12 @@ in {
   # https://docs.docker.com/config/containers/live-restore/
   virtualisation.docker.liveRestore = false;
 
+  # enable the tailscale daemon; this will do a variety of tasks:
+  # 1. create the TUN network device
+  # 2. setup some IP routes to route through the TUN
+  services.tailscale = { enable = true; };
+
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
    users.users.flakm = {
      shell = pkgs.zsh;
@@ -98,6 +109,25 @@ in {
        };
      };
 
+    programs.tmux = {
+      enable = true;
+      clock24 = true;
+
+      extraConfig = ''
+      # Start windows and pane numbering with index 1 instead of 0
+      set -g base-index 1
+      setw -g pane-base-index 1
+
+      # {n}vim compability
+      set-option -ga terminal-overrides ",xterm-256color:Tc"
+      set -g default-terminal "screen-256color"
+      set-option -g status-style bg=default
+      '';
+      plugins = with pkgs.tmuxPlugins; [ sensible yank];
+
+    };
+
+
      nixpkgs.config.allowUnfree = true;
 
      services.gpg-agent = {     
@@ -126,7 +156,7 @@ in {
           ls = "ls --color";
           ll = "ls -l";
           update = "sudo nixos-rebuild switch";
-          config = "git --git-dir=$HOME/.cfg/ --work-tree=$HOME";
+          d = "git dotfiles";
 	      vim = "nvim";
 	      vi = "vi";
         };
@@ -145,6 +175,9 @@ bindkey  "^[[1;5C" forward-word
 bindkey  "^[[1;5D" backward-word
 bindkey  "^[[1;3C" forward-word
 bindkey  "^[[1;eD" backward-word
+
+# complete globs
+setopt glob_complete
        '';
      };  
   };
@@ -177,10 +210,15 @@ bindkey  "^[[1;eD" backward-word
      # If used as nvim module the plugins are not used
      # https://nixos.wiki/wiki/Neovim
      unstable.neovim
+     unstable.hugo
      xclip
      unstable.bloop
      unstable.coursier
-     unstable.scala_2_12
+     alacritty
+     
+     dotty
+     sbt
+
      unstable.scalafmt
      unstable.scalafix
      gcc
@@ -217,6 +255,8 @@ bindkey  "^[[1;eD" backward-word
      teams
      libreoffice
      keepassxc
+     bitwarden
+     bitwarden-cli
      unstable.dropbox-cli
 
      # spelling
@@ -224,6 +264,10 @@ bindkey  "^[[1;eD" backward-word
      aspellDicts.pl
      aspellDicts.en
      aspellDicts.en-computers
+
+     tailscale
+     element-desktop
+     discord
    ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -274,9 +318,11 @@ bindkey  "^[[1;eD" backward-word
     kdeconnect.enable = true;
   };
 
+
+  # Let's open the UDP port with which the network is tunneled through
   networking.firewall = {
-    allowedTCPPorts = [ 17500 ];
-    allowedUDPPorts = [ 17500 ];
+    allowedTCPPorts = [ ];
+    allowedUDPPorts = [ 41641 ];
   };
 
   systemd.user.services.dropbox = {
@@ -303,7 +349,7 @@ bindkey  "^[[1;eD" backward-word
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "21.11"; # Did you read the comment?
+  system.stateVersion = "22.05"; # Did you read the comment?
 }
 
 

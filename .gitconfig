@@ -4,6 +4,7 @@
 	signingKey = AD7821B8
 [core]
 	autocrlf = input
+	editor = nvim
 [filesystem "Azul Systems, Inc.|1.8.0_252|/dev/nvme0n1p5"]
 	timestampResolution = 1001 microseconds
 	minRacyThreshold = 6948 microseconds

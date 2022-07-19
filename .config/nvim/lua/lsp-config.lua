@@ -82,6 +82,9 @@ map("n", "<leader>dl", [[<cmd>lua require"dap".run_last()<CR>]])
 -- completion related settings
 -- This is similiar to what I use
 local cmp = require("cmp")
+local cmp_buffer = require('cmp_buffer')
+
+
 cmp.setup({
   sources = {
     { name = "nvim_lsp" },
@@ -108,6 +111,74 @@ cmp.setup({
       select = true,
     })
   }),
+
 })
+
+  cmp.setup.filetype('sh', {
+    sources = {
+      { name = 'path' }
+    }
+  })
+
+  -- Set configuration for specific filetype.
+  cmp.setup.filetype('yaml', {
+    sources = {
+      { 
+          name = 'buffer', 
+          option = {
+            get_bufnrs = function()
+                return vim.api.nvim_list_bufs()
+            end,
+            sorting = {
+                comparators = {
+                  function(...) return cmp_buffer:compare_locality(...) end,
+                  -- The rest of your comparators...
+                }
+            },
+          }
+      },
+    },
+  })
+
+
+  cmp.setup.filetype('toktme', {
+    sources = {
+      { 
+          name = 'buffer', 
+          option = {
+            get_bufnrs = function()
+                return vim.api.nvim_list_bufs()
+            end,
+            sorting = {
+                comparators = {
+                  function(...) return cmp_buffer:compare_locality(...) end,
+                  -- The rest of your comparators...
+                }
+            },
+          }
+      },
+    },
+  })
+
+
+  cmp.setup.filetype('toktme_script', {
+    sources = {
+      { 
+          name = 'buffer', 
+          option = {
+            get_bufnrs = function()
+                return vim.api.nvim_list_bufs()
+            end,
+            sorting = {
+                comparators = {
+                  function(...) return cmp_buffer:compare_locality(...) end,
+                  -- The rest of your comparators...
+                }
+            },
+          }
+      },
+    },
+  })
+
 
 

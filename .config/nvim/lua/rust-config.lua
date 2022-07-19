@@ -23,6 +23,11 @@ local opts = {
             -- to enable rust-analyzer settings visit:
             -- https://github.com/rust-analyzer/rust-analyzer/blob/master/docs/user/generated_config.adoc
             ["rust-analyzer"] = {
+                diagnostics = {
+                    enable = true,
+                    disabled = {"unresolved-proc-macro"},
+                    enableExperimental = true,
+                },
                 -- enable clippy on save
                 checkOnSave = {
                     command = "clippy"

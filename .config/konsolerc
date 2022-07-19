@@ -13,9 +13,13 @@ detailViewIconSize=16
 ShowMenuBarByDefault=false
 
 [MainWindow]
+DP-1 Height 1920x1080=1058
 DP-1 Height 3840x2160=2090
+DP-1 Width 1920x1080=1920
 DP-1 Width 3840x2160=1920
 DP-1 Window-Maximized 1920x1080=true
+DP-1 XPosition 1920x1080=0
+DP-1 YPosition 1920x1080=0
 MenuBar=Disabled
 State=AAAA/wAAAAD9AAAAAAAAB4AAAAQiAAAABAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAIAAAAWAG0AYQBpAG4AVABvAG8AbABCAGEAcgAAAAAA/////wAAAAAAAAAAAAAAHABzAGUAcwBzAGkAbwBuAFQAbwBvAGwAYgBhAHIAAAAAAP////8AAAAAAAAAAA==
 StatusBar=Disabled
@@ -33,9 +37,9 @@ eDP-1 DP-1 XPosition 3840x2160=0
 eDP-1 DP-1 YPosition 1920x1080=0
 eDP-1 DP-1 YPosition 2194x1234=30
 eDP-1 DP-1 YPosition 3840x2160=2160
-eDP-1 Height 1920x1080=1058
+eDP-1 Height 1920x1080=705
 eDP-1 Height 3840x2160=2110
-eDP-1 Width 1920x1080=960
+eDP-1 Width 1920x1080=1280
 eDP-1 Width 3840x2160=1920
 eDP-1 Window-Maximized 1920x1080=true
 eDP-1 Window-Maximized 2194x1234=true
@@ -54,3 +58,6 @@ eDP-1-1 YPosition 3840x2160=0
 [PrintOptions]
 PrinterFriendly=true
 ScaleOutput=true
+
+[UiSettings]
+ColorScheme=Default
